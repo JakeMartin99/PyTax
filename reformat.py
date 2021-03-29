@@ -1,7 +1,4 @@
-import sys
 from utils import Utils; ut = Utils()
-args = sys.argv[1:]
-ut.handle_args(args)
 
 input_data = ut.read_csv("input")
 ref_file = ut.write_csv()

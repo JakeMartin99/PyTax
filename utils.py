@@ -1,16 +1,47 @@
+# Imports
+import sys
+
 class Utils:
     '''
-    Initialize the Utils class with empty parameters for
-    -platform: Identifies the trading platform data is sourced from
-    -input: Filename for the input transaction data
-    -output: Filename for the reformatted output data
-    '''
-    def __init__(self):
-        self.platform, self.input, self.output = "", "", ""
+    A class to handle various utility features.
+    ...
+    Attributes
+    ----------
+    platform : str
+        Name of the trading platform the data is sourced from
+    input : str
+        Filename of the file for the raw input transaction data
+    output : str
+        Filename of the destination file for the reformatted output transaction data
 
+    Methods
+    -------
+    read_csv(in_or_out):
+        Returns the contents of either input or output as a 2D list
+    write_csv():
+        Returns a writable IO variable for the output file
+    type_compress():
+        Removes excess text from certain transaction type indicators
+    format_tx(type, tx_i, date, amt, curr, usd_val, notes):
+        Takes in transaction data and creates the appropriate CSV output row
     '''
-    '''
-    def handle_args(self, args:list):
+    
+    def __init__(self):
+        '''
+        Constructs all necessary attributes for the utility object
+
+        Parameters
+        ----------
+        None directly, instead uses command line args
+        -p: platform: str
+            Name of the trading platform the data is sourced from
+        -i: input: str
+            Filename of the file for the raw input transaction data
+        -o: output: str
+            Filename of the destination file for the reformatted output transaction data
+        '''
+        self.platform, self.input, self.output = "", "", ""
+        args = sys.argv[1:]
         for i in range(len(args)):
             a = args[i]
             if a[0]=='-':
