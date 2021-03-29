@@ -132,7 +132,7 @@ class Utils:
         type : str
             Type indicator of the transaction
         tx_i : int
-            Incrementing ID # for transactions
+            Incrementing ID # of the transaction
         date : str
             Date the transaction took place
         amt : float
@@ -148,9 +148,10 @@ class Utils:
         -------
         tx : str
             Properly reformatted CSV row string for output file of form:
-            Type, Type Helper, Date, Crypto Qty, Crypto Type, USD Val., Token Cost, Platform, Other Notes
+            Tx ID, Type, Type Helper, Date, Crypto Qty, Crypto Type, USD Val., Token Cost, Platform, Other Notes
         '''
-        tx = self.type_compress(type) + "," + "\"=A" + str(tx_i) + "&COUNTIF($A$2:A" + str(tx_i) + ",A" + str(tx_i) + ")\""
+        tx = tx_i + "," + self.type_compress(type)
+        tx += "," + "\"=A" + str(tx_i+1) + "&COUNTIF($A$2:A" + str(tx_i+1) + ",A" + str(tx_i+1) + ")\""
         tx += "," + date + "," + str(abs(amt)) + "," + curr + "," + str(abs(usd_val))
-        tx += ",=F" + str(tx_i) + "/D" + str(tx_i) + "," + self.platform + "," + notes + "\n"
+        tx += ",=F" + str(tx_i+1) + "/D" + str(tx_i+1) + "," + self.platform + "," + notes + "\n"
         return tx
