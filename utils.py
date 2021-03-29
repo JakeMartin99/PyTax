@@ -25,19 +25,19 @@ class Utils:
     format_tx(type, tx_i, date, amt, curr, usd_val, notes):
         Takes in transaction data and creates the appropriate CSV output row
     '''
-    
+
     def __init__(self):
         '''
         Constructs all necessary attributes for the utility object
 
         Parameters
         ----------
-        None directly, instead uses command line args
-        -p: platform: str
+        None directly, instead uses command line args, requires all filled
+        -p: platform : str
             Name of the trading platform the data is sourced from
-        -i: input: str
+        -i: input : str
             Filename of the file for the raw input transaction data
-        -o: output: str
+        -o: output : str
             Filename of the destination file for the reformatted output transaction data
         '''
         self.platform, self.input, self.output = "", "", ""
@@ -60,6 +60,19 @@ class Utils:
             exit()
 
     def read_csv(self, in_or_out:str)->list:
+        '''
+        Reads the contents of either CSV file (input or output) into a 2D list
+
+        Parameters
+        ----------
+        in_or_out : str
+            Descriptor for which of the two files should be read
+
+        Returns
+        -------
+        data : list
+            2D list containing the data cells of the chosen CSV
+        '''
         if in_or_out == "input":
             file = open(self.input)
         elif in_or_out == "output":
@@ -72,9 +85,35 @@ class Utils:
         return data
 
     def write_csv(self):
-        return open(self.output, "w")
+        '''
+        Opens a writable file variable for the output file
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        output_w : open(file)
+            An opened, writable file variable of the output CSV
+        '''
+        output_w = open(self.output, "w")
+        return output_w
 
     def type_compress(self, type:str)->str:
+        '''
+        Removes excess text from certain transaction type indicators
+
+        Parameters
+        ----------
+        type : str
+            A type indicator for a transaction
+
+        Returns
+        -------
+        type : str
+            The original type string, with uneccesary information removed
+        '''
         if "->" in type:
             return ("Sale" if type.split(" -> ")[0] != "USD" else "Purchase")
         elif type == "Crypto Earn Deposit":
@@ -85,6 +124,32 @@ class Utils:
             return type
 
     def format_tx(self, type:str, tx_i:int, date:str, amt:float, curr:str, usd_val:float, notes:str)->str:
+        '''
+        Takes in transaction data and creates the appropriate CSV output row
+
+        Parameters
+        ----------
+        type : str
+            Type indicator of the transaction
+        tx_i : int
+            Incrementing ID # for transactions
+        date : str
+            Date the transaction took place
+        amt : float
+            Quantity of crypto transacted
+        curr : str
+            Name of currency or token transacted
+        usd_val : float
+            Value of the transaction in $
+        notes : str
+            Any provided notes about the transaction
+
+        Returns
+        -------
+        tx : str
+            Properly reformatted CSV row string for output file of form:
+            Type, Type Helper, Date, Crypto Qty, Crypto Type, USD Val., Token Cost, Platform, Other Notes
+        '''
         tx = self.type_compress(type) + "," + "\"=A" + str(tx_i) + "&COUNTIF($A$2:A" + str(tx_i) + ",A" + str(tx_i) + ")\""
         tx += "," + date + "," + str(abs(amt)) + "," + curr + "," + str(abs(usd_val))
         tx += ",=F" + str(tx_i) + "/D" + str(tx_i) + "," + self.platform + "," + notes + "\n"
