@@ -59,7 +59,7 @@ class Utils:
             print("Error: Not all params filled")
             exit()
 
-    def read_csv(self, in_or_out:str)->list:
+    def read_csv(self, in_or_out:str, invert:bool=False)->list:
         '''
         Reads the contents of either CSV file (input or output) into a 2D list
 
@@ -67,6 +67,8 @@ class Utils:
         ----------
         in_or_out : str
             Descriptor for which of the two files should be read
+        invert : bool, optional
+            Chooses whether the final output should be chronologically reversed
 
         Returns
         -------
@@ -80,9 +82,9 @@ class Utils:
         else:
             print("Error: Invalid option for read_csv()")
             exit()
-        data = [t.split(',') for t in file.read().split('\n')][1:-1][::-1]
+        data = [t.split(',') for t in file.read().split('\n')][1:-1]
         file.close()
-        return data
+        return (data if not invert else data[::-1])
 
     def write_csv(self):
         '''
@@ -115,13 +117,24 @@ class Utils:
             The original type string, with uneccesary information removed
         '''
         if "->" in type:
-            return ("Sale" if type.split(" -> ")[0] != "USD" else "Purchase")
-        elif type == "Crypto Earn Deposit":
-            return "Earn Deposit"
-        elif type.split(" ")[-1] == "Deposit":
-            return "Funds Transfer"
+            currs = type.split(" -> ")
+            left, right = currs[0], currs[1]
+            if left == "USD":
+                return "Purchase"
+            elif right == "USD":
+                return "Sale"
+            else:
+                return "Sale"
+        elif type == "Purchase":
+            return "Purchase"
+        elif type == "Crypto Earn":
+            return "Earn Payment"
+        elif type.split(" ")[0] == "Buy":
+            return "Purchase"
+        elif "Reward" in type and "Rewards" not in type or "Bonus" in type:
+            return "Misc Taxable Reward"
         else:
-            return type
+            return "Unneeded"
 
     def format_tx(self, type:str, tx_i:int, date:str, amt:float, curr:str, usd_val:float, notes:str)->str:
         '''
@@ -150,8 +163,8 @@ class Utils:
             Properly reformatted CSV row string for output file of form:
             Tx ID, Type, Type Helper, Date, Crypto Qty, Crypto Type, USD Val., Token Cost, Platform, Other Notes
         '''
-        tx = tx_i + "," + self.type_compress(type)
-        tx += "," + "\"=A" + str(tx_i+1) + "&COUNTIF($A$2:A" + str(tx_i+1) + ",A" + str(tx_i+1) + ")\""
+        tx = self.platform[0:2] + str(tx_i) + "," + self.type_compress(type)
+        tx += "," + "\"=B" + str(tx_i+1) + "&COUNTIF($B$2:B" + str(tx_i+1) + ",B" + str(tx_i+1) + ")\""
         tx += "," + date + "," + str(abs(amt)) + "," + curr + "," + str(abs(usd_val))
-        tx += ",=F" + str(tx_i+1) + "/D" + str(tx_i+1) + "," + self.platform + "," + notes + "\n"
+        tx += ",=G" + str(tx_i+1) + "/E" + str(tx_i+1) + "," + self.platform + "," + notes + "\n"
         return tx
